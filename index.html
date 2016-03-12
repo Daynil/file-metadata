@@ -5,6 +5,8 @@
 	<title>File Metadata</title>
 	<link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js"></script>
 	<style>
 		.container {
 			margin-top: 20px;
@@ -13,10 +15,27 @@
 		a:hover {
 			text-decoration: none;	
 		}
+		#file {
+			width: 0.1px;
+			height: 0.1px;
+			opacity: 0;
+			overflow: hidden;
+			position: absolute;
+			z-index: -1;
+		}
+		i {
+			position: relative;
+			right: 15px;
+			margin: -5px;
+		}
+		#file-size-label {
+			display: inline-block;
+		}
+		#file-size {
+			position: relative;
+			left: 20px;
+		}
 	</style>
-	<script>
-		
-	</script>
 </head>
 <body>
 	<div class="container">
@@ -24,7 +43,42 @@
 			<h1>File Metadata API</h1>
 			<p>Created by Daynil - <a href="https://github.com/Daynil/file-metadata">Github Repo</a></p>
 			<p>Upload any file and magically see its file size appear!</p>
+			<form>
+				<input type="file" name="uploadedFile" id="file" />
+				<label class="button" for="file" id="file-label"><i class="fa fa-upload fa-lg"></i>Choose a file...</label>
+				<input class="button-primary" type="submit" value="Upload" id="upload"/>
+			</form>
+			<p id="file-size-label">File size: </p><span id="file-size">...</span>
 		</div>
 	</div>	
+	<script>
+		window.onload = function() {
+			var fileInput = document.getElementById('file');
+			var fileLabel = document.getElementById('file-label');
+			var fileSize = document.getElementById('file-size');
+			var selectedFile;
+			fileInput.addEventListener('change', function() {
+				selectedFile = this.files[0];
+				if (!selectedFile) return;
+				fileLabel.innerHTML = '<i class="fa fa-upload fa-lg"></i>' + ' ' + selectedFile.name;
+			});
+			var upload = document.getElementById('upload');
+			upload.onclick = function(e) {
+				e.preventDefault();
+				if (!selectedFile) return;
+				console.log(selectedFile);
+				var data = new FormData();
+				data.append('uploadedFile', selectedFile);
+				axios.post('/upload', data)
+				.then(function(response) {
+					fileSize.innerHTML = response.data + ' Bytes';
+					console.log(response);
+				})
+				.catch(function (response) {
+					console.log('error', response);
+				});	
+			}
+		}
+	</script>
 </body>
 </html>
